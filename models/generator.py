@@ -9,23 +9,23 @@ class ResNetGenerator(nn.Module):
             layers = [nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding, bias=False)]
             if normalize:
                 layers.append(nn.InstanceNorm2d(out_channels))
-            if dropout:
+            if dropout>0:
                 layers.append(nn.Dropout(dropout))
-            layers.append(nn.ReLU(0.2, inplace=True))
+            layers.append(nn.ReLU(inplace=True))
             return nn.Sequential(*layers)
 
         def residual_block(in_channels, out_channels, kernel_size=3, stride=1, padding=1, normalize=True):
             layers = [nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding, bias=False)]
             if normalize:
                 layers.append(nn.InstanceNorm2d(out_channels))
-            layers.append(nn.ReLU(0.2, inplace=True))
+            layers.append(nn.ReLU(inplace=True))
             layers.append(nn.Conv2d(out_channels, out_channels, kernel_size, stride, padding, bias=False))
             if normalize:
                 layers.append(nn.InstanceNorm2d(out_channels))
             return nn.Sequential(*layers)
 
-        def deconv_block(in_channels, out_channels, kernel_size=3, stride=2, padding=1, dropout=0.0):
-            layers = [nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride, padding, bias=False)]
+        def deconv_block(in_channels, out_channels, kernel_size=3, stride=2, padding=1, output_padding=1, dropout=0.0):
+            layers = [nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride, padding, output_padding=output_padding, bias=False)]
             layers.append(nn.InstanceNorm2d(out_channels))
             if dropout>0:
                 layers.append(nn.Dropout(dropout))
@@ -33,7 +33,7 @@ class ResNetGenerator(nn.Module):
             return nn.Sequential(*layers)
 
         # Encoder layers
-        self.enc1 = conv_block(3, 64, kernel_size=7, stride=1)
+        self.enc1 = conv_block(3, 64, kernel_size=7, stride=1, padding=3)
         self.enc2 = conv_block(64, 128)
         self.enc3 = conv_block(128, 256)
 
@@ -45,7 +45,7 @@ class ResNetGenerator(nn.Module):
         self.dec2 = deconv_block(128, 64)
 
         self.final_layer = nn.Sequential(
-            nn.ConvTranspose2d(64, 3, kernel_size=7, stride=1, padding=3),
+            nn.Conv2d(64, 3, kernel_size=7, stride=1, padding=3),
             nn.Tanh()
         )
 
@@ -64,3 +64,13 @@ class ResNetGenerator(nn.Module):
         x = self.dec2(x)
         output = self.final_layer(x)
         return output
+
+# if __name__ == "__main__":
+#     netG = ResNetGenerator()
+#     print(netG)
+
+#     # Test with a dummy input
+#     x = torch.randn(1, 3, 256, 256)  # Batch size of 1, 3 color channels, 256x256 image
+#     y = netG(x)
+#     print(f"Input shape: {x.shape}")
+#     print(f"Output shape: {y.shape}")
