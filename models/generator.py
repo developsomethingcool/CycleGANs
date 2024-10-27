@@ -56,21 +56,13 @@ class ResNetGenerator(nn.Module):
         x = self.enc2(x)
         x = self.enc3(x)
         
-        #Residual block
+        # Residual block
         for res_block in self.res_blocks:
             x = x + res_block(x)
 
+        # Decode layer
         x = self.dec1(x)
         x = self.dec2(x)
         output = self.final_layer(x)
         return output
-
-# if __name__ == "__main__":
-#     netG = ResNetGenerator()
-#     print(netG)
-
-#     # Test with a dummy input
-#     x = torch.randn(1, 3, 256, 256)  # Batch size of 1, 3 color channels, 256x256 image
-#     y = netG(x)
-#     print(f"Input shape: {x.shape}")
-#     print(f"Output shape: {y.shape}")
+        
