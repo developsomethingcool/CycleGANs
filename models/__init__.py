@@ -1,5 +1,5 @@
 # models/__init__.py
-from .generator import UNetGenerator
+from .generator import ResNetGenerator
 from .discriminator import PatchGANDiscriminator
 
 # Optionally, you could add other imports or package-level variables here
