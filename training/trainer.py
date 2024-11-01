@@ -6,7 +6,7 @@ from utils.utils import save_checkpoint, load_checkpoint, generate_images, visua
 
 # Parameters
 n_discriminator_updates = 1 
-n_generator_updates = 1      
+n_generator_updates = 2      
 
 
 def train_cycle_gan(generator_AB, generator_BA, discriminator_A, discriminator_B, train_dataloader, visualization_loader, opt_gen, opt_disc_A, opt_disc_B, scheduler_gen, scheduler_disc_A, scheduler_disc_B, num_epochs=100, start_epoch=1, lr=2e-4, lambda_cycle=10, lambda_identity=0, device="cuda"):
@@ -111,6 +111,9 @@ def train_cycle_gan(generator_AB, generator_BA, discriminator_A, discriminator_B
                 # Training of a generator
                 opt_gen.zero_grad()
 
+                fake_B = generator_AB(images_A)
+                fake_A = generator_BA(images_B)
+
                 # Adversarial loss for generator
                 preds_fake_B = discriminator_B(fake_B)
 
@@ -189,5 +192,5 @@ def train_cycle_gan(generator_AB, generator_BA, discriminator_A, discriminator_B
                 'scheduler_disc_B_state_dict': scheduler_disc_B.state_dict(),
             }, filename=f"cyclegan_checkpoint_epoch_{epoch}.pth.tar")
 
-        #if epoch % 2 == 0:
-            #visualize_results(edges, reals, fakes, epoch)
+        # if epoch % 2 == 0:
+        visualize_results(images_A, fake_B, images_B, fake_A, epoch)

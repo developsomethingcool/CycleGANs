@@ -4,14 +4,14 @@ from .dataset import UnityToRealLife
 from torchvision import transforms
 import numpy as np
 
-def get_dataloaders(unity_image_dir, real_image_dir, batch_size=16, val_split=0.2, test_split=0.1, num_workers=4):
+def get_dataloaders(domain_A_image_dir, domain_B_image_dir, batch_size=16, val_split=0.2, test_split=0.1, num_workers=4):
     transform = transforms.Compose([
-        transforms.Resize((512, 512)),
+        transforms.Resize((256, 256)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
     ])
 
-    dataset = UnityToRealLife(unity_image_dir=unity_image_dir, real_image_dir=real_image_dir, transform=transform)
+    dataset = UnityToRealLife(domain_A_image_dir=domain_A_image_dir, domain_B_image_dir=domain_B_image_dir, transform=transform)
 
     # Calculate split sizes for train, val, and test sets
     dataset_size = len(dataset)

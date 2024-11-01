@@ -74,95 +74,54 @@ def generate_images(generator_AB, generator_BA, dataloader, device, save_path='g
 
     print(f"Images saved to {save_path}")
 
-def visualize_results(generator_AB, generator_BA, images_A, images_B, epoch, save_path='visualization_results', device="cuda"):
-    """
-    Visualize and save the results of both translation directions along with cycle consistency.
-    """
-    generator_AB.eval()
-    generator_BA.eval()
+def visualize_results(edges, fakes, edges2, fakes2, epoch, save_path='visualization_results'):
+    # Ensure tensors are in the correct format: [batch_size, channels, height, width]
+    if len(edges.shape) == 2:
+        edges = edges.unsqueeze(0)  # Add batch dimension if necessary
+    elif len(edges.shape) == 3:
+        edges = edges.unsqueeze(1)  # Add channel dimension if necessary
 
-    with torch.no_grad():
-        images_A = images_A.to(device)
-        images_B = images_B.to(device)
+    # Convert tensors to numpy arrays and rescale values
+    edges = edges.cpu().detach().numpy().transpose(0, 2, 3, 1) * 0.5 + 0.5
+    #real_images = real_images.cpu().detach().numpy().transpose(0, 2, 3, 1) * 0.5 + 0.5
+    fakes = fakes.cpu().detach().numpy().transpose(0, 2, 3, 1) * 0.5 + 0.5
+    # Convert tensors to numpy arrays and rescale values
+    edges2 = edges2.cpu().detach().numpy().transpose(0, 2, 3, 1) * 0.5 + 0.5
+    #real_images = real_images.cpu().detach().numpy().transpose(0, 2, 3, 1) * 0.5 + 0.5
+    fakes2 = fakes2.cpu().detach().numpy().transpose(0, 2, 3, 1) * 0.5 + 0.5
 
-        # Generate fake images
-        fake_B = generator_AB(images_A)
-        fake_A = generator_BA(images_B)
-
-        # Reconstruct images for cycle consistency
-        reconstructed_A = generator_BA(fake_B)
-        reconstructed_B = generator_AB(fake_A)
-
-    # Move images to CPU and convert to numpy
-    images_A = images_A.cpu().detach().numpy()
-    images_B = images_B.cpu().detach().numpy()
-    fake_B = fake_B.cpu().detach().numpy()
-    fake_A = fake_A.cpu().detach().numpy()
-    reconstructed_A = reconstructed_A.cpu().detach().numpy()
-    reconstructed_B = reconstructed_B.cpu().detach().numpy()
-
-    # Number of images to visualize
-    num_images = min(images_A.shape[0], 4)  # Adjust as needed
+    # Get the minimum number of images to display
+    num_images = min(edges.shape[0], 4)
 
     # Create the save directory if it doesn't exist
     os.makedirs(save_path, exist_ok=True)
 
-    # Set up the plot
-    fig, axes = plt.subplots(4, num_images, figsize=(15, 12))
+    # Create a subplot
+    fig, axes = plt.subplots(4, num_images, figsize=(15, 8))
     for i in range(num_images):
-        # Row 1: Original A
-        img_A = np.transpose(images_A[i], (1, 2, 0))
-        img_A = (img_A * 0.5) + 0.5  # Rescale from [-1, 1] to [0, 1]
-        axes[0, i].imshow(np.clip(img_A, 0, 1))
-        axes[0, i].axis('off')
-        if i == 0:
-            axes[0, i].set_title('Original A')
+        if num_images == 1:
+            axes[0].imshow(edges[i])
+            axes[0].axis('off')
+            axes[1].imshow(fakes[i])
+            axes[1].axis('off')
+            axes[2].imshow(edges2[i])
+            axes[2].axis('off')
+            axes[3].imshow(fakes2[i])
+            axes[3].axis('off')
+        else:
+            axes[0, i].imshow(edges[i])
+            axes[0, i].axis('off')
+            axes[1, i].imshow(fakes[i])
+            axes[1, i].axis('off')
+            axes[2, i].imshow(edges2[i])
+            axes[2, i].axis('off')
+            axes[3, i].imshow(fakes2[i])
+            axes[3, i].axis('off')
 
-        # Row 2: Fake B
-        img_fake_B = np.transpose(fake_B[i], (1, 2, 0))
-        img_fake_B = (img_fake_B * 0.5) + 0.5
-        axes[1, i].imshow(np.clip(img_fake_B, 0, 1))
-        axes[1, i].axis('off')
-        if i == 0:
-            axes[1, i].set_title('Fake B (A→B)')
 
-        # Row 3: Reconstructed A
-        img_recon_A = np.transpose(reconstructed_A[i], (1, 2, 0))
-        img_recon_A = (img_recon_A * 0.5) + 0.5
-        axes[2, i].imshow(np.clip(img_recon_A, 0, 1))
-        axes[2, i].axis('off')
-        if i == 0:
-            axes[2, i].set_title('Reconstructed A (A→B→A)')
-
-        # Row 4: Original B
-        img_B = np.transpose(images_B[i], (1, 2, 0))
-        img_B = (img_B * 0.5) + 0.5
-        axes[3, i].imshow(np.clip(img_B, 0, 1))
-        axes[3, i].axis('off')
-        if i == 0:
-            axes[3, i].set_title('Original B')
-
-        # Row 5: Fake A
-        img_fake_A = np.transpose(fake_A[i], (1, 2, 0))
-        img_fake_A = (img_fake_A * 0.5) + 0.5
-        axes[4, i].imshow(np.clip(img_fake_A, 0, 1))
-        axes[4, i].axis('off')
-        if i == 0:
-            axes[4, i].set_title('Fake A (B→A)')
-
-        # Row 6: Reconstructed B
-        img_recon_B = np.transpose(reconstructed_B[i], (1, 2, 0))
-        img_recon_B = (img_recon_B * 0.5) + 0.5
-        axes[5, i].imshow(np.clip(img_recon_B, 0, 1))
-        axes[5, i].axis('off')
-        if i == 0:
-            axes[5, i].set_title('Reconstructed B (B→A→B)')
-
-    plt.suptitle(f'Epoch {epoch}', fontsize=16)
-    plt.tight_layout()
-    plt.subplots_adjust(top=0.95)
-
-    # Save the figure
+    plt.suptitle(f'Epoch {epoch}')
+    
+    # Save the figure instead of displaying it
     save_file_path = os.path.join(save_path, f'epoch_{epoch}_visualization.png')
     plt.savefig(save_file_path, bbox_inches='tight')
     plt.close(fig)

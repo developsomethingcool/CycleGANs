@@ -6,34 +6,34 @@ from torchvision import transforms
 import random
 
 class UnityToRealLife(Dataset):
-    def __init__(self, unity_image_dir, real_image_dir, transform=None):
-        self.unity_image_dir = unity_image_dir
-        self.real_image_dir = real_image_dir
+    def __init__(self, domain_A_image_dir, domain_B_image_dir, transform=None):
+        self.domain_A_image_dir = domain_A_image_dir
+        self.domain_B_image_dir = domain_B_image_dir
         self.transform = transform
 
-        self.unity_images = sorted(os.listdir(self.unity_image_dir))
-        self.real_images = sorted(os.listdir(self.real_image_dir))
+        self.domain_A_images = sorted(os.listdir(self.domain_A_image_dir))
+        self.domain_B_images = sorted(os.listdir(self.domain_B_image_dir))
 
-        self.len_unity_images =  len(self.unity_images)
-        self.len_real_life_images = len(self.real_images)
+        self.len_domain_A_images =  len(self.domain_A_images)
+        self.len_domnain_B_images = len(self.domain_B_images)
 
-        self.dataset_size = max(len(self.real_images),len(self.unity_images))
+        self.dataset_size = max(self.len_domain_A_images, self.len_domnain_B_images)
 
     def __len__(self):
         return self.dataset_size
 
     def __getitem__(self, idx):
-        unity_idx = idx % self.len_unity_images
-        unity_image_path = os.path.join(self.unity_image_dir, self.unity_images[unity_idx])
-        unity_image = Image.open(unity_image_path).convert("RGB")
+        domain_A_idx = idx % self.len_domain_A_images
+        domain_A_image_path = os.path.join(self.domain_A_image_dir, self.domain_A_images[domain_A_idx])
+        domain_A_image = Image.open(domain_A_image_path).convert("RGB")
 
-        real_life_idx = idx % self.len_real_life_images
-        real_image_path = os.path.join(self.real_image_dir, self.real_images[real_life_idx])
-        real_image = Image.open(real_image_path).convert("RGB")
+        domain_B_idx = idx % self.len_domnain_B_images
+        domain_B_image_path = os.path.join(self.domain_B_image_dir, self.domain_B_images[domain_B_idx])
+        domain_B_image = Image.open(domain_B_image_path).convert("RGB")
 
         if self.transform:
-            unity_image = self.transform(unity_image)
-            real_image = self.transform(real_image)
+            domain_A_image = self.transform(domain_A_image)
+            domain_B_image = self.transform(domain_B_image)
 
-        return unity_image, real_image
+        return domain_A_image, domain_B_image
 
