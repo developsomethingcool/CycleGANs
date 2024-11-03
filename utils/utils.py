@@ -3,6 +3,10 @@ import os
 from torchvision.utils import save_image
 import matplotlib.pyplot as plt
 import numpy as np
+import tqdm
+
+def denormalize(tensor):
+    return tensor * 0.5 + 0.5
 
 def save_checkpoint(state, filename='checkpoint.pth.tar'):
     print(f"Saving checkpoint to {filename}")
@@ -28,13 +32,17 @@ def generate_images(generator_AB, generator_BA, dataloader, device, save_path='g
     """
     Function to generate and save images using a trained generators in both ways.
     """
+    # Set generators to evaluation mode
     generator_AB.eval()
     generator_BA.eval()
 
+    # Create directory for saving images
     os.makedirs(save_path, exist_ok=True)  
 
+    images_saved = 0  # Counter for saved images
+
     with torch.no_grad():
-        for i, (images_A, images_B) in enumerate(dataloader):
+        for i, (images_A, images_B) in enumerate(tqdm.tqdm(dataloader, desc="Generating Images")):
             images_A = images_A.to(device)
             images_B = images_B.to(device)
 
@@ -42,17 +50,17 @@ def generate_images(generator_AB, generator_BA, dataloader, device, save_path='g
             fake_B = generator_AB(images_A)
             fake_A = generator_BA(images_B)
             
-            # Cycle consitency
-            reconstructed_A = generator_BA(fake_B)
-            reconstructed_B = generator_AB(fake_A)
+            # Cycle consistency
+            reconstructed_A = generator_BA(fake_B)  # A -> B -> A
+            reconstructed_B = generator_AB(fake_A)  # B -> A -> B
 
-            if i * dataloader.batch_size >= num_images_to_save:
-                break
+            # Iterate over each image in the batch
+            batch_size = images_A.size(0)
+            for j in range(batch_size):
+                if images_saved >= num_images_to_save:
+                    break
 
-            # Concatenate images for easier visualization
-            # Each row: Original A, Fake B, Reconstructed A
-            # Each row: Original B, Fake A, Reconstructed B
-            for j in range(images_A.size(0)):
+                # Extract individual images
                 img_A = images_A[j]
                 img_fake_B = fake_B[j]
                 img_recon_A = reconstructed_A[j]
@@ -61,16 +69,36 @@ def generate_images(generator_AB, generator_BA, dataloader, device, save_path='g
                 img_fake_A = fake_A[j]
                 img_recon_B = reconstructed_B[j]
 
-                # Create a grid of images
-                grid_ABA = torch.stack([img_A, img_fake_B, img_recon_A], dim=0)
-                grid_BAB = torch.stack([img_B, img_fake_A, img_recon_B], dim=0)
+                # Denormalize images
+                img_A_denorm = denormalize(img_A)
+                fake_B_denorm = denormalize(img_fake_B)
+                recon_A_denorm = denormalize(img_recon_A)
+                img_B_denorm = denormalize(img_B)
+                fake_A_denorm = denormalize(img_fake_A)
+                recon_B_denorm = denormalize(img_recon_B)
 
-                # Save the concatenated images
-                save_image(grid_ABA, os.path.join(save_path, f'A_to_B_{i * dataloader.batch_size + j}.png'), normalize=True)
-                save_image(grid_BAB, os.path.join(save_path, f'B_to_A_{i * dataloader.batch_size + j}.png'), normalize=True)
+                # Clamp images to [0,1] to ensure proper visualization
+                img_A_denorm = torch.clamp(img_A_denorm, 0, 1)
+                fake_B_denorm = torch.clamp(fake_B_denorm, 0, 1)
+                recon_A_denorm = torch.clamp(recon_A_denorm, 0, 1)
+                img_B_denorm = torch.clamp(img_B_denorm, 0, 1)
+                fake_A_denorm = torch.clamp(fake_A_denorm, 0, 1)
+                recon_B_denorm = torch.clamp(recon_B_denorm, 0, 1)
 
-            if i < num_images_to_save // dataloader.batch_size:
-                save_image(fakes, os.path.join(save_path, f'generated_{i}.png'), normalize=True)
+                # Create a grid for A -> B -> A
+                grid_ABA = torch.cat((img_A_denorm, fake_B_denorm, recon_A_denorm), dim=2)  # Concatenate horizontally
+
+                # Create a grid for B -> A -> B
+                grid_BAB = torch.cat((img_B_denorm, fake_A_denorm, recon_B_denorm), dim=2)  # Concatenate horizontally
+
+                # Save the concatenated grids
+                save_image(grid_ABA, os.path.join(save_path, f'A_to_B_{images_saved}.png'), normalize=False)
+                save_image(grid_BAB, os.path.join(save_path, f'B_to_A_{images_saved}.png'), normalize=False)
+
+                images_saved += 1  # Increment the counter
+
+            if images_saved >= num_images_to_save:
+                break  # Exit the loop once the desired number of images is saved
 
     print(f"Images saved to {save_path}")
 

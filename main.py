@@ -6,7 +6,7 @@ from data import get_dataloaders
 from models.generator import ResNetGenerator
 from models.discriminator import PatchGANDiscriminator
 from training import train_cycle_gan
-from training.evaluator import evaluate_pix2pix
+from training.evaluator import evaluate_cyclegan
 from utils.utils import load_checkpoint, generate_images
 import tarfile
 import os
@@ -21,7 +21,7 @@ def main():
     
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     num_epochs = 200
-    batch_size = 1
+    batch_size = 4
     lr = 2e-4
     lambda_l1 = 50
     lambda_cycle=10 
@@ -50,8 +50,9 @@ def main():
 
     generator_AB.to(device)
     generator_BA.to(device)
-    discriminator_A.to(device)
-    discriminator_B.to(device)
+
+    #discriminator_A.to(device)
+    #discriminator_B.to(device)
 
     # Initialize optimizers
     opt_gen = optim.Adam(list(generator_AB.parameters()) + list(generator_BA.parameters()), lr=lr, betas=(0.5, 0.999))
@@ -82,7 +83,7 @@ def main():
         scheduler_disc_B = None
 
     # Load checkpoint
-    start_epoch = 31
+    start_epoch = 131
     if checkpoint_path and os.path.isfile(checkpoint_path):
         print(f"Loading checkpoint from {checkpoint_path}")
         checkpoint = torch.load(checkpoint_path, map_location=device)
@@ -146,10 +147,10 @@ def main():
         
     elif task == 'eval':
         print("Starting evaluation...")
-        #evaluate_pix2pix(generator, val_loader, device, save_path='evaluation_results', num_images_to_save=16)
+        evaluate_cyclegan(generator_AB, generator_BA, val_loader, device, save_path='evaluation_results', num_images_to_save=16)
     elif task == 'gen':
         print("Generating images...")
-        #generate_images(generator, test_loader, device, save_path='generated_images', num_images_to_save=64)
+        generate_images(generator_AB, generator_BA, test_loader, device, save_path='generated_images', num_images_to_save=64)
 
 if __name__ == "__main__":
     main()
