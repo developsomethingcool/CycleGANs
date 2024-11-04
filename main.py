@@ -17,7 +17,7 @@ def main():
     real_image_dir = 'trainB'
     
     #checkpoint_path = None
-    checkpoint_path = "cyclegan_checkpoint_epoch_30.pth.tar"
+    checkpoint_path = "cyclegan_checkpoint_epoch_70.pth.tar"
     
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     num_epochs = 200
@@ -25,7 +25,7 @@ def main():
     lr = 2e-4
     lambda_l1 = 50
     lambda_cycle=10 
-    lambda_identity=0
+    lambda_identity=5
 
     print(f"Task: {task}")
     print(f"Edge images directory: {unity_image_dir}")
@@ -65,17 +65,17 @@ def main():
         scheduler_gen = optim.lr_scheduler.LambdaLR(
             opt_gen,
             #lr_lambda=lambda epoch: 1.0 - max(0, epoch - num_epochs) / float(num_epochs//2) 
-            lr_lambda=lambda epoch: 2.0 - max(0, epoch - num_epochs//2) / float(num_epochs//2)
+            lr_lambda=lambda epoch: 2.0 - max(0, epoch - num_epochs/2) / float(num_epochs/2)
         )
         scheduler_disc_A = optim.lr_scheduler.LambdaLR(
             opt_disc_A,
             #lr_lambda=lambda epoch: 0.25 - max(0, epoch - num_epochs) / float(num_epochs//2) 
-            lr_lambda=lambda epoch: 1.0 - max(0, epoch - num_epochs//2) / float(num_epochs//2)
+            lr_lambda=lambda epoch: 1.0 - max(0, epoch - num_epochs/2) / float(num_epochs/2)
         )
         scheduler_disc_B = optim.lr_scheduler.LambdaLR(
             opt_disc_B,
             #lr_lambda=lambda epoch: 0.25 - max(0, epoch - num_epochs) / float(num_epochs//2) 
-            lr_lambda=lambda epoch: 1.0 - max(0, epoch - num_epochs//2) / float(num_epochs//2)
+            lr_lambda=lambda epoch: 1.0 - max(0, epoch - num_epochs/2) / float(num_epochs/2)
         )
     else:
         scheduler_gen = None
@@ -83,7 +83,7 @@ def main():
         scheduler_disc_B = None
 
     # Load checkpoint
-    start_epoch = 131
+    start_epoch = 71
     if checkpoint_path and os.path.isfile(checkpoint_path):
         print(f"Loading checkpoint from {checkpoint_path}")
         checkpoint = torch.load(checkpoint_path, map_location=device)

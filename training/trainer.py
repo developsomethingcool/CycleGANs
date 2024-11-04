@@ -118,16 +118,16 @@ def train_cycle_gan(generator_AB, generator_BA, discriminator_A, discriminator_B
                 preds_fake_B = discriminator_B(fake_B)
 
                 # Real labels = 1, fake labels = 0  
-                real_label_B = torch.ones_like(preds_real_B, device=device)
-                fake_label_B = torch.zeros_like(preds_real_B, device=device)
+                real_label_B = torch.ones_like(preds_fake_B, device=device)
+                fake_label_B = torch.zeros_like(preds_fake_B, device=device)
 
                 loss_GAN_AB = criterion_gan(preds_fake_B, real_label_B)
 
                 preds_fake_A = discriminator_A(fake_A)
 
                 # Real labels = 1, fake labels = 0  
-                real_label_A = torch.ones_like(preds_real_A, device=device)
-                fake_label_A = torch.zeros_like(preds_real_A, device=device)
+                real_label_A = torch.ones_like(preds_fake_A, device=device)
+                fake_label_A = torch.zeros_like(preds_fake_A, device=device)
                 
                 loss_GAN_BA = criterion_gan(preds_fake_A, real_label_A)
 
@@ -142,11 +142,11 @@ def train_cycle_gan(generator_AB, generator_BA, discriminator_A, discriminator_B
 
                 # Identity loss (optional)
                 if lambda_identity > 0:
-                    identity_A = generator_AB(images_A)
-                    loss_identity_A = criterion_identity(identity_A, images_A) * lambda_identity
-
-                    identity_B = generator_BA(images_B)
+                    identity_B = generator_AB(images_B)
                     loss_identity_B = criterion_identity(identity_B, images_B) * lambda_identity
+
+                    identity_A = generator_BA(images_A)
+                    loss_identity_A = criterion_identity(identity_A, images_A) * lambda_identity
 
                     loss_identity = loss_identity_A + loss_identity_B
                 else:
