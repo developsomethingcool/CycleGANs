@@ -6,7 +6,7 @@ This project is an implementation of the CycleGAN architecture for bidirectional
 CycleGAN makes it possible to mapp the images between two different domains without relying on a paired dataset. This implementation can be adapted to different domains.
 
 # Project structure
-'''
+```
 project_root/       
 │
 ├── data/
@@ -30,7 +30,7 @@ project_root/
 │
 ├── main.py                   # Main script to run the training/evaluation
 └── requirements.txt          # List of dependencies
-'''
+```
 
 dataloader.py: Creates data loaders for training, validation, and testing datasets.
 dataset.py: Defines a structure of a custom dataset class FirstDomainToSecondDomain for loading and preprocessing images from both domains.
