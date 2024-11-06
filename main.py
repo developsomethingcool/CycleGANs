@@ -7,18 +7,29 @@ from models.generator import ResNetGenerator
 from models.discriminator import PatchGANDiscriminator
 from training import train_cycle_gan
 from training.evaluator import evaluate_cyclegan
-from utils.utils import load_checkpoint, generate_images
+from utils.utils import load_checkpoint, generate_images, initialize_weights
 import tarfile
 import os
+import numpy as np
+import random
 
 def main():
-    task = 'train'  # Options: 'train', 'eval', 'gen'
+    task = 'gen'  # Options: 'train', 'eval', 'gen'
     unity_image_dir = 'trainA'
     real_image_dir = 'trainB'
     
     #checkpoint_path = None
-    checkpoint_path = "cyclegan_checkpoint_epoch_70.pth.tar"
+    checkpoint_path = "cyclegan_checkpoint_epoch_150.pth.tar"
     
+    # Set random seeds for reproducibility
+    np.random.seed(42)
+    torch.manual_seed(42)
+    random.seed(42)
+
+    # If using CUDA
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(42)
+
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     num_epochs = 200
     batch_size = 4
@@ -48,11 +59,6 @@ def main():
     discriminator_A = PatchGANDiscriminator().to(device) if task == 'train' else None
     discriminator_B = PatchGANDiscriminator().to(device) if task == 'train' else None
 
-    generator_AB.to(device)
-    generator_BA.to(device)
-
-    #discriminator_A.to(device)
-    #discriminator_B.to(device)
 
     # Initialize optimizers
     opt_gen = optim.Adam(list(generator_AB.parameters()) + list(generator_BA.parameters()), lr=lr, betas=(0.5, 0.999))
@@ -83,7 +89,7 @@ def main():
         scheduler_disc_B = None
 
     # Load checkpoint
-    start_epoch = 71
+    start_epoch = 1
     if checkpoint_path and os.path.isfile(checkpoint_path):
         print(f"Loading checkpoint from {checkpoint_path}")
         checkpoint = torch.load(checkpoint_path, map_location=device)
@@ -108,6 +114,15 @@ def main():
             device=device
         )
         if task == 'train' and 'discriminator_A_state_dict' in checkpoint:
+            # Initialize weights
+            initialize_weights(generator_AB)
+            initialize_weights(generator_BA)
+            initialize_weights(discriminator_A)
+            initialize_weights(discriminator_B)
+
+            generator_AB.to(device)
+            generator_BA.to(device)
+
             load_checkpoint(
                 checkpoint_path, 
                 discriminator_A, 

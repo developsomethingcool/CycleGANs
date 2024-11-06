@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import os
 from torchvision.utils import save_image
 import matplotlib.pyplot as plt
@@ -156,3 +157,17 @@ def visualize_results(edges, fakes, edges2, fakes2, epoch, save_path='visualizat
 
     print(f"Saved visualization to {save_file_path}")
 
+def initialize_weights(net):
+    """
+    Networks weights initialization
+    """
+    for m in net.modules():
+        if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d)):
+            nn.init.normal_(m.weight.data, mean=0.0, std=0.02)
+            if m.bias is not None:
+                nn.init.constant_(m.bias.data, 0.0)
+        elif isinstance(m, (nn.InstanceNorm2d, nn.BatchNorm2d)):
+            if m.weight is not None:
+                nn.init.normal_(m.weight.data, mean=1.0, std=0.02)
+            if m.bias is not None:
+                nn.init.constant_(m.bias.data, 0.0)

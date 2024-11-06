@@ -1,6 +1,6 @@
 import torch
 from torch.utils.data import DataLoader, random_split, Subset
-from .dataset import UnityToRealLife
+from .dataset import FirstDomainToSecondDomain
 from torchvision import transforms
 import numpy as np
 
@@ -11,7 +11,7 @@ def get_dataloaders(domain_A_image_dir, domain_B_image_dir, batch_size=16, val_s
         transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
     ])
 
-    dataset = UnityToRealLife(domain_A_image_dir=domain_A_image_dir, domain_B_image_dir=domain_B_image_dir, transform=transform)
+    dataset = FirstDomainToSecondDomain(domain_A_image_dir=domain_A_image_dir, domain_B_image_dir=domain_B_image_dir, transform=transform)
 
     # Calculate split sizes for train, val, and test sets
     dataset_size = len(dataset)

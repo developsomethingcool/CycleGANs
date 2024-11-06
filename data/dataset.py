@@ -5,7 +5,7 @@ from PIL import Image
 from torchvision import transforms
 import random
 
-class UnityToRealLife(Dataset):
+class FirstDomainToSecondDomain(Dataset):
     def __init__(self, domain_A_image_dir, domain_B_image_dir, transform=None):
         self.domain_A_image_dir = domain_A_image_dir
         self.domain_B_image_dir = domain_B_image_dir
@@ -23,12 +23,13 @@ class UnityToRealLife(Dataset):
         return self.dataset_size
 
     def __getitem__(self, idx):
-        domain_A_idx = idx % self.len_domain_A_images
-        domain_A_image_path = os.path.join(self.domain_A_image_dir, self.domain_A_images[domain_A_idx])
-        domain_A_image = Image.open(domain_A_image_path).convert("RGB")
+        domain_A_idx = random.randint(0, self.len_domain_A_images - 1)
+        domain_B_idx = random.randint(0, self.len_domnain_B_images - 1)
 
-        domain_B_idx = idx % self.len_domnain_B_images
+        domain_A_image_path = os.path.join(self.domain_A_image_dir, self.domain_A_images[domain_A_idx])
         domain_B_image_path = os.path.join(self.domain_B_image_dir, self.domain_B_images[domain_B_idx])
+
+        domain_A_image = Image.open(domain_A_image_path).convert("RGB")
         domain_B_image = Image.open(domain_B_image_path).convert("RGB")
 
         if self.transform:
