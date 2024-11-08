@@ -4,16 +4,19 @@ import torch.optim as optim
 from tqdm import tqdm
 from utils.utils import save_checkpoint, load_checkpoint, generate_images, visualize_results
 
-# Parameters
+# Number of discriminator updates per iteration
 n_discriminator_updates = 1 
+# Number of generator updates per iteration
 n_generator_updates = 2      
 
 
 def train_cycle_gan(generator_AB, generator_BA, discriminator_A, discriminator_B, train_dataloader, visualization_loader, opt_gen, opt_disc_A, opt_disc_B, scheduler_gen, scheduler_disc_A, scheduler_disc_B, num_epochs=100, start_epoch=1, lr=2e-4, lambda_cycle=10, lambda_identity=0, device="cuda"):
- 
-    #Mean squared error
+    # Training function for CycleGAN architecture
+
+    #Mean squared error, adversarial loss
     criterion_gan = nn.MSELoss()
     
+    # L1 loss, cycle consistency and identity loss
     criterion_cycle = nn.L1Loss()
     criterion_identity = nn.L1Loss()   
 
@@ -21,6 +24,7 @@ def train_cycle_gan(generator_AB, generator_BA, discriminator_A, discriminator_B
         loop = tqdm(train_dataloader, leave=True, desc=f"Epoch [{epoch}/{num_epochs}]")
 
         for idx, (images_A, images_B) in enumerate(loop):
+            # Move images to use on GPU
             images_A, images_B = images_A.to(device), images_B.to(device)
 
             # Update the Discriminator (n times)
@@ -33,7 +37,7 @@ def train_cycle_gan(generator_AB, generator_BA, discriminator_A, discriminator_B
                 generator_AB.eval()
                 generator_BA.eval()
 
-                # Zero gradients for discriminators
+                # Zero gradients for discriminators to zero
                 opt_disc_A.zero_grad()
                 opt_disc_B.zero_grad()
 
@@ -50,9 +54,6 @@ def train_cycle_gan(generator_AB, generator_BA, discriminator_A, discriminator_B
                 fake_label_A = torch.zeros_like(preds_real_A, device=device)
                 
                 loss_D_A_real = criterion_gan(preds_real_A, real_label_A)
-
-                # Generate unity images based on real_life
-                #fake_A = generator_BA(images_B)
 
                 #Test discriminator on unity images 
                 preds_fake_A = discriminator_A(fake_A.detach())
@@ -77,9 +78,6 @@ def train_cycle_gan(generator_AB, generator_BA, discriminator_A, discriminator_B
                 fake_label_B = torch.zeros_like(preds_real_B, device=device)
 
                 loss_D_B_real = criterion_gan(preds_real_B, real_label_B)
-
-                # Generate unity images based on real_life
-                #fake_B = generator_AB(images_A)
 
                 #Test discriminator on unity images 
                 preds_fake_B = discriminator_B(fake_B.detach())
@@ -140,7 +138,7 @@ def train_cycle_gan(generator_AB, generator_BA, discriminator_A, discriminator_B
 
                 loss_cycle = (loss_cycle_A + loss_cycle_B) * lambda_cycle
 
-                # Identity loss (optional)
+                # Identity loss
                 if lambda_identity > 0:
                     identity_B = generator_AB(images_B)
                     loss_identity_B = criterion_identity(identity_B, images_B) * lambda_identity

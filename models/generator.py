@@ -2,9 +2,11 @@ import torch
 import torch.nn as nn
 
 class ResNetGenerator(nn.Module):
+    # This class implements ResNetGenerator architecture
     def __init__(self):
         super(ResNetGenerator, self).__init__()
 
+        # Definition function for convolutional block with optional normalization and dropout
         def conv_block(in_channels, out_channels, kernel_size=3, stride=2, padding=1, normalize=True, dropout=0.0):
             layers = [nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding, bias=False)]
             if normalize:
@@ -14,6 +16,7 @@ class ResNetGenerator(nn.Module):
             layers.append(nn.ReLU(inplace=True))
             return nn.Sequential(*layers)
 
+        # Definition function for residual block 
         def residual_block(in_channels, out_channels, kernel_size=3, stride=1, padding=1, normalize=True):
             layers = [nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding, bias=False)]
             if normalize:
@@ -24,6 +27,7 @@ class ResNetGenerator(nn.Module):
                 layers.append(nn.InstanceNorm2d(out_channels))
             return nn.Sequential(*layers)
 
+        # Definition function for residual convolutional block
         def deconv_block(in_channels, out_channels, kernel_size=3, stride=2, padding=1, output_padding=1, dropout=0.0):
             layers = [nn.ConvTranspose2d(in_channels, out_channels, kernel_size, stride, padding, output_padding=output_padding, bias=False)]
             layers.append(nn.InstanceNorm2d(out_channels))
@@ -49,7 +53,7 @@ class ResNetGenerator(nn.Module):
             nn.Tanh()
         )
 
-    # forward propagation
+    # Forward path
     def forward(self, x):
         # Encoder
         x = self.enc1(x)
@@ -60,7 +64,7 @@ class ResNetGenerator(nn.Module):
         for res_block in self.res_blocks:
             x = x + res_block(x)
 
-        # Decode layer
+        # Decoder
         x = self.dec1(x)
         x = self.dec2(x)
         output = self.final_layer(x)

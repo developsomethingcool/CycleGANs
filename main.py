@@ -14,12 +14,12 @@ import numpy as np
 import random
 
 def main():
-    task = 'gen'  # Options: 'train', 'eval', 'gen'
+    task = 'train'  # Options: 'train', 'eval', 'gen'
     unity_image_dir = 'trainA'
     real_image_dir = 'trainB'
     
-    #checkpoint_path = None
-    checkpoint_path = "cyclegan_checkpoint_epoch_150.pth.tar"
+    checkpoint_path = None
+    #checkpoint_path = "cyclegan_checkpoint_epoch_190.pth.tar"
     
     # Set random seeds for reproducibility
     np.random.seed(42)
@@ -90,8 +90,18 @@ def main():
 
     # Load checkpoint
     start_epoch = 1
-    if checkpoint_path and os.path.isfile(checkpoint_path):
+
+    if checkpoint_path is None or not os.path.isfile(checkpoint_path):
+        print("No checkpoint found. Initializing weights.")
+        initialize_weights(generator_AB)
+        initialize_weights(generator_BA)
+        if task == 'train':
+            initialize_weights(discriminator_A)
+            initialize_weights(discriminator_B)
+    
+    else:
         print(f"Loading checkpoint from {checkpoint_path}")
+
         checkpoint = torch.load(checkpoint_path, map_location=device)
         
         # Load generators
@@ -114,11 +124,6 @@ def main():
             device=device
         )
         if task == 'train' and 'discriminator_A_state_dict' in checkpoint:
-            # Initialize weights
-            initialize_weights(generator_AB)
-            initialize_weights(generator_BA)
-            initialize_weights(discriminator_A)
-            initialize_weights(discriminator_B)
 
             generator_AB.to(device)
             generator_BA.to(device)

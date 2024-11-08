@@ -30,9 +30,8 @@ def load_checkpoint(checkpoint_path, model, model_key, optimizer=None, optimizer
         print(f"Scheduler state for {scheduler_key} loaded successfully")
 
 def generate_images(generator_AB, generator_BA, dataloader, device, save_path='generated_images', num_images_to_save=10):
-    """
-    Function to generate and save images using a trained generators in both ways.
-    """
+    # Function to generate and save images using a trained generators in both ways.
+
     # Set generators to evaluation mode
     generator_AB.eval()
     generator_BA.eval()
@@ -40,7 +39,8 @@ def generate_images(generator_AB, generator_BA, dataloader, device, save_path='g
     # Create directory for saving images
     os.makedirs(save_path, exist_ok=True)  
 
-    images_saved = 0  # Counter for saved images
+    # Counter for saved images
+    images_saved = 0  
 
     with torch.no_grad():
         for i, (images_A, images_B) in enumerate(tqdm.tqdm(dataloader, desc="Generating Images")):
@@ -52,8 +52,10 @@ def generate_images(generator_AB, generator_BA, dataloader, device, save_path='g
             fake_A = generator_BA(images_B)
             
             # Cycle consistency
-            reconstructed_A = generator_BA(fake_B)  # A -> B -> A
-            reconstructed_B = generator_AB(fake_A)  # B -> A -> B
+            # A -> B -> A
+            reconstructed_A = generator_BA(fake_B)
+            # B -> A -> B
+            reconstructed_B = generator_AB(fake_A)
 
             # Iterate over each image in the batch
             batch_size = images_A.size(0)
@@ -96,7 +98,8 @@ def generate_images(generator_AB, generator_BA, dataloader, device, save_path='g
                 save_image(grid_ABA, os.path.join(save_path, f'A_to_B_{images_saved}.png'), normalize=False)
                 save_image(grid_BAB, os.path.join(save_path, f'B_to_A_{images_saved}.png'), normalize=False)
 
-                images_saved += 1  # Increment the counter
+                # Increment the counter
+                images_saved += 1 
 
             if images_saved >= num_images_to_save:
                 break  # Exit the loop once the desired number of images is saved

@@ -2,9 +2,11 @@ import torch
 import torch.nn as nn
 
 class PatchGANDiscriminator(nn.Module):
+    # This class implements PatchGANDiscriminator architecture
     def __init__(self):
         super(PatchGANDiscriminator, self).__init__()
 
+        # Definition function for convolutional block
         def conv_block(in_channels, out_channels, kernel_size=4, stride=2, padding=1, normalize=True, dropout=0.0):
             layers = [nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding, bias=False)]
             if normalize:
@@ -22,10 +24,10 @@ class PatchGANDiscriminator(nn.Module):
         #self.enc5 = conv_block(512, 512)
         #self.enc6 = conv_block(512, 512, stride=1)
         self.enc7 = nn.Conv2d(512, 1, kernel_size=4, stride=1, padding=1)
-        #self.activation = nn.Sigmoid()
 
 
     def forward(self, x):
+        # Forward path through the network
         x = self.enc1(x)
         x = self.enc2(x)
         x = self.enc3(x)
@@ -34,7 +36,6 @@ class PatchGANDiscriminator(nn.Module):
         #enc6 = self.enc6(enc4)
         x = self.enc7(x)
         return x
-        #return self.activation(x)
 
 if __name__ == "__main__":
     discriminator = PatchGANDiscriminator()
