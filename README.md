@@ -60,7 +60,7 @@ Dataset should be prepared for both domains
 Domain A: Images from the first domain
 Domain B: Images from the second domain
 
-'''
+```
 Datadirectories should look the following way
 ├── data/
 │ ├──trainA/
@@ -69,5 +69,5 @@ Datadirectories should look the following way
 │ ├──trainB/
 │     ├── image1.jpg
 │    ├── image2.jpg
-'''
+```
 Make sure that images are formatted and preprocessed as needed
