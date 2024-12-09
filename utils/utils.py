@@ -29,6 +29,7 @@ def load_checkpoint(checkpoint_path, model, model_key, optimizer=None, optimizer
         scheduler.load_state_dict(checkpoint[scheduler_key])
         print(f"Scheduler state for {scheduler_key} loaded successfully")
 
+
 def generate_images(generator_AB, generator_BA, dataloader, device, save_path='generated_images', num_images_to_save=10):
     # Function to generate and save images using a trained generators in both ways.
 

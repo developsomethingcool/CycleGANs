@@ -1,0 +1,43 @@
+# Ignore Python virtual environments
+venv/
+.env/
+
+# Ignore Python cache files
+*.pyc
+__pycache__/
+
+# Ignore environment variable files
+.env
+
+# Ignore log files
+*.log
+
+# Ignore compiled binaries
+*.o
+*.out
+*.exe
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore all files in the edges and real_images folders
+trainA/*
+trainB/*
+visualization_results/*
+generated_images/*
+evaluation_results/*
+
+# Keep the folder structure (but not the files)
+!trainA/.gitkeep
+!trainB/.gitkeep
+!visualization_results/.gitkeep
+!generated_images/.gitkeep
+!evaluation_results/.gitkeep
+
+# Ignore virtual environment
+pix2pix/
+
+# Ignore all .pth files
+*.pth.tar
+

@@ -21,9 +21,7 @@ class PatchGANDiscriminator(nn.Module):
         self.enc2 = conv_block(64, 128)
         self.enc3 = conv_block(128, 256, dropout=0.5)
         self.enc4 = conv_block(256, 512, stride=1, dropout=0.5)
-        #self.enc5 = conv_block(512, 512)
-        #self.enc6 = conv_block(512, 512, stride=1)
-        self.enc7 = nn.Conv2d(512, 1, kernel_size=4, stride=1, padding=1)
+        self.enc5 = nn.Conv2d(512, 1, kernel_size=4, stride=1, padding=1)
 
 
     def forward(self, x):
@@ -32,9 +30,7 @@ class PatchGANDiscriminator(nn.Module):
         x = self.enc2(x)
         x = self.enc3(x)
         x = self.enc4(x)
-        #enc5 = self.enc5(enc4)
-        #enc6 = self.enc6(enc4)
-        x = self.enc7(x)
+        x = self.enc5(x)
         return x
 
 if __name__ == "__main__":

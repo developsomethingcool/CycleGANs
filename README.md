@@ -47,27 +47,96 @@ Visualization of images during the training
 
 # Installation
 1. Clone the Repository
-git clone https://github.com/developsomethingcool/cyclegan-bidirectional.git
-cd cyclegan-bidirectional
-2. Install Dependencies
-You can install the required packages using pip:
-pip install -r requirements.txt
-If a requirements.txt file is not provided, install the packages individually:
-pip install torch torchvision numpy Pillow matplotlib tqdm
+git clone https://github.com/developsomethingcool/CycleGANs.git
+cd CycleGANs
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
 
-# Datasets
-Dataset should be prepared for both domains
-Domain A: Images from the first domain
-Domain B: Images from the second domain
+3. Prepare your dataset (see Configuration):
 
-```
-Datadirectories should look the following way
-├── data/
-│ ├──trainA/
-│    ├── image1.jpg
-│    ├── image2.jpg 
-│ ├──trainB/
-│     ├── image1.jpg
-│    ├── image2.jpg
-```
-Make sure that images are formatted and preprocessed as needed
+## Usage
+
+### Training
+To train the CycleGAN model:
+```bash
+python main.py --task train --unity_image_dir <path_to_domain_A_images> --real_image_dir <path_to_domain_B_images>
+
+
+### Evaluation
+To evaluate the model on a validation set:
+```bash
+python main.py --task eval --unity_image_dir <path_to_domain_A_images> --real_image_dir <path_to_domain_B_images>
+
+
+### Image Generation
+
+To generate images using the trained CycleGAN:
+```bash
+python main.py --task gen --unity_image_dir <path_to_domain_A_images>
+
+
+## Project Structure
+
+```bash
+CycleGANs/
+├── data/                       # Dataloader utilities
+│   ├── dataloader.py           # Loads datasets and applies preprocessing
+│   ├── dataset.py              # Custom dataset implementation
+├── models/                     # Generator and discriminator models
+│   ├── generator.py            # ResNet-based generator
+│   ├── discriminator.py        # PatchGAN-based discriminator
+├── training/                   # Training and evaluation logic
+│   ├── trainer.py              # Training loop
+│   ├── evaluator.py            # Evaluation loop
+├── utils/                      # Helper functions
+│   ├── utils.py                # Checkpointing, visualization, etc.
+├── .gitignore                  # Git ignore rules
+├── README.md                   # Project documentation
+├── main.py                     # Entry point for training, evaluation, and generation
+├── requirements.txt            # Python dependencies
+
+## Configuration
+
+### Dataset
+
+Prepare two directories for your datasets:
+
+- `trainA/`: Contains images from the first domain (e.g., sketches or synthetic images).
+- `trainB/`: Contains images from the second domain (e.g., real-world images).
+
+Ensure that images are in a format compatible with PyTorch's `torchvision`.
+
+
+### Hyperparameters
+
+Modify hyperparameters in `main.py` or pass them as command-line arguments:
+
+- `--num_epochs`: Number of training epochs (default: `200`).
+- `--batch_size`: Batch size for training (default: `4`).
+- `--lr`: Learning rate for optimizers (default: `2e-4`).
+- `--lambda_cycle`: Weight for cycle consistency loss (default: `10`).
+- `--lambda_identity`: Weight for identity loss (default: `5`).
+
+## Examples
+
+### Visualization
+
+During training, visualizations of the input, generated, and reconstructed images are saved in the `visualization_results` directory.
+
+### Generated Images
+
+After training, generate images using the command in the [Image Generation](#image-generation) section. Results will be saved in the `generated_images` directory.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+- [CycleGAN Paper](https://junyanz.github.io/CycleGAN/)
+- [PyTorch Framework](https://pytorch.org/)
+- OpenAI's tools and resources
+
+
+

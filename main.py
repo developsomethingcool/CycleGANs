@@ -19,7 +19,7 @@ def main():
     real_image_dir = 'trainB'
     
     checkpoint_path = None
-    #checkpoint_path = "cyclegan_checkpoint_epoch_190.pth.tar"
+    #checkpoint_path = "cyclegan_checkpoint_epoch_95.pth.tar"
     
     # Set random seeds for reproducibility
     np.random.seed(42)
@@ -70,17 +70,14 @@ def main():
     if task == "train":
         scheduler_gen = optim.lr_scheduler.LambdaLR(
             opt_gen,
-            #lr_lambda=lambda epoch: 1.0 - max(0, epoch - num_epochs) / float(num_epochs//2) 
-            lr_lambda=lambda epoch: 2.0 - max(0, epoch - num_epochs/2) / float(num_epochs/2)
+            lr_lambda=lambda epoch: 1.0 - max(0, epoch - num_epochs/2) / float(num_epochs/2)
         )
         scheduler_disc_A = optim.lr_scheduler.LambdaLR(
             opt_disc_A,
-            #lr_lambda=lambda epoch: 0.25 - max(0, epoch - num_epochs) / float(num_epochs//2) 
             lr_lambda=lambda epoch: 1.0 - max(0, epoch - num_epochs/2) / float(num_epochs/2)
         )
         scheduler_disc_B = optim.lr_scheduler.LambdaLR(
             opt_disc_B,
-            #lr_lambda=lambda epoch: 0.25 - max(0, epoch - num_epochs) / float(num_epochs//2) 
             lr_lambda=lambda epoch: 1.0 - max(0, epoch - num_epochs/2) / float(num_epochs/2)
         )
     else:
