@@ -1,44 +1,30 @@
-# CycleGANs Bidirectional Architecture Implementation
+# CycleGAN Framework for Image-to-Image Translation
 
-This project is an implementation of the CycleGAN architecture for bidirectional image-to-image translation between two domains. The model learns to translate images from Domain A to Domain B and the other way around without paired data, using cycle consistency loss.
+This repository implements a **CycleGAN framework**, a Generative Adversarial Network (GAN) for unpaired image-to-image translation tasks. It includes support for training, evaluation, and image generation.
 
-# Introduction
-CycleGAN makes it possible to mapp the images between two different domains without relying on a paired dataset. This implementation can be adapted to different domains.
+---
 
-# Project structure
-```
-project_root/       
-│
-├── data/
-│   ├── init.py
-│   ├── dataset.py            # Custom dataset classes
-│   └── dataloader.py         # Data loading utilities
-│
-├── models/
-│   ├── init.py
-│   ├── generator.py          # Generator model
-│   ├── discriminator.py      # Discriminator model
-│
-├── utils/
-│   ├── init.py
-│   ├── utils.py              # Utility functions
-│
-├── training/
-│   ├── init.py
-│   ├── trainer.py            # Training loop
-│   └── evaluator.py          # Evaluation loop
-│
-├── main.py                   # Main script to run the training/evaluation
-└── requirements.txt          # List of dependencies
-```
+## Table of Contents
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Installation](#installation)
+4. [Usage](#usage)
+    - [Training](#training)
+    - [Evaluation](#evaluation)
+    - [Image Generation](#image-generation)
+5. [Project Structure](#project-structure)
+6. [Configuration](#configuration)
+7. [Examples](#examples)
+8. [Contributing](#contributing)
+9. [License](#license)
 
-dataloader.py: Creates data loaders for training, validation, and testing datasets.
-dataset.py: Defines a structure of a custom dataset class FirstDomainToSecondDomain for loading and preprocessing images from both domains.
-generator.py: Implementation of a generator network based on ResNet-based architecture.
-discriminator.py: Implementation of a PatchGAN discriminator architecture.
-trainer.py: Training loop for the CycleGAN model training.
-evaluator.py: Evaluator for the trained model and generator for translated images.
-utils.py: Utility functions for saving/loading checkpoints, initializing weights, and visualizing results.
+---
+
+## Overview
+
+CycleGAN is a framework for image-to-image translation where paired data is not available. This implementation supports training and evaluating CycleGAN models for two domains (e.g., artistic and real-world images) using PyTorch.
+
+---
 
 # Features
 Bidirectional image translation between two domains
